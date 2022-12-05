@@ -22,7 +22,8 @@ class NormalizedDegree(object):
 
 
 def get_dataset(path, name, sparse=True, cleaned=False, DQ=None):
-    dataset = Planetoid(path, name, cleaned=cleaned)
+    # dataset = Planetoid(path, name, cleaned=cleaned)
+    dataset = Planetoid(root='/tmp/Cora', name='Cora')
     dataset.data.edge_attr = None
 
     if dataset.data.x is None:
