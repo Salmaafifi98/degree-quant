@@ -134,6 +134,7 @@ class GCN(torch.nn.Module):
         self.conv1 = gcn_layer(
             in_channels = 500,
             out_channels = 16,
+            layer_quantizers=lq_signed,
             mp_quantizers=mq,
         )
         self.convs = torch.nn.ModuleList()
