@@ -13,12 +13,12 @@ from torch_geometric.utils import (
     softmax,
 )
 
-from dq.baseline_quant import (
+from degree.dq.baseline_quant import (
     msg_special_args,
     aggr_special_args,
     update_special_args,
 )
-from dq.baseline_quant import scatter_
+from degree.dq.baseline_quant import scatter_
 
 
 def evaluate_prob_mask(data):

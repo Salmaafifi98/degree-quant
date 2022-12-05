@@ -1,9 +1,9 @@
 import torch
-from torch_geometric.datasets import TUDataset
+from torch_geometric.datasets import Planetoid
 from torch_geometric.utils import degree
 import torch_geometric.transforms as T
 
-from dq.transforms import ProbabilisticHighDegreeMask
+from degree.dq.transforms import ProbabilisticHighDegreeMask
 
 
 # Follows the setup used by PyTorch Geometric
@@ -22,7 +22,7 @@ class NormalizedDegree(object):
 
 
 def get_dataset(path, name, sparse=True, cleaned=False, DQ=None):
-    dataset = TUDataset(path, name, cleaned=cleaned)
+    dataset = Planetoid(path, name, cleaned=cleaned)
     dataset.data.edge_attr = None
 
     if dataset.data.x is None:
@@ -46,7 +46,7 @@ def get_dataset(path, name, sparse=True, cleaned=False, DQ=None):
             max_num_nodes = max(data.num_nodes, max_num_nodes)
 
         # Filter out a few really large graphs in order to apply DiffPool.
-        if name == "REDDIT-BINARY":
+        if name == "Cora":
             num_nodes = min(int(num_nodes / len(dataset) * 1.5), max_num_nodes)
         else:
             num_nodes = min(int(num_nodes / len(dataset) * 5), max_num_nodes)

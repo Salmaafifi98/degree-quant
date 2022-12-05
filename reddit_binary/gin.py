@@ -3,10 +3,10 @@ import torch.nn.functional as F
 from torch.nn import Linear, Sequential, ReLU, Identity, BatchNorm1d as BN
 from torch_geometric.nn import global_mean_pool
 
-from dq.quantization import IntegerQuantizer
-from dq.linear_quantized import LinearQuantized
-from dq.baseline_quant import GINConvQuant
-from dq.multi_quant import evaluate_prob_mask, GINConvMultiQuant
+from degree.dq.quantization import IntegerQuantizer
+from degree.dq.linear_quantized import LinearQuantized
+from degree.dq.baseline_quant import GINConvQuant
+from degree.dq.multi_quant import evaluate_prob_mask, GINConvMultiQuant
 
 
 def create_quantizer(qypte, ste, momentum, percentile, signed, sample_prop):
