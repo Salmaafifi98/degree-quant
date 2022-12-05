@@ -203,12 +203,12 @@ class MessagePassingMultiQuant(Module):
 
 
 REQUIRED_GCN_KEYS = [
-    "weights_low",
-    "inputs_low",
-    "inputs_high",
-    "features_low",
-    "features_high",
-    "norm_low",
+    "weights",
+    "inputs",
+    # "inputs_high",
+    "features",
+    # "features_high",
+    # "norm_low",
 ]
 
 
@@ -281,20 +281,20 @@ class GCNConvMultiQuant(MessagePassingMultiQuant):
         # quantizing input
         if self.training:
             x_q = torch.empty_like(x)
-            x_q[mask] = self.layer_quantizers["inputs_high"](x[mask])
-            x_q[~mask] = self.layer_quantizers["inputs_low"](x[~mask])
+            x_q[mask] = self.layer_quantizers["inputs"](x[mask])
+            x_q[~mask] = self.layer_quantizers["inputs"](x[~mask])
         else:
-            x_q = self.layer_quantizers["inputs_low"](x)
+            x_q = self.layer_quantizers["inputs"](x)
 
         # quantizing layer weights
-        w_q = self.layer_quantizers["weights_low"](self.weight)
+        w_q = self.layer_quantizers["weights"](self.weight)
         if self.training:
             x = torch.empty((x_q.shape[0], w_q.shape[1])).to(x_q.device)
             x_tmp = torch.matmul(x_q, w_q)
-            x[mask] = self.layer_quantizers["features_high"](x_tmp[mask])
-            x[~mask] = self.layer_quantizers["features_low"](x_tmp[~mask])
+            x[mask] = self.layer_quantizers["features"](x_tmp[mask])
+            x[~mask] = self.layer_quantizers["features"](x_tmp[~mask])
         else:
-            x = self.layer_quantizers["features_low"](torch.matmul(x_q, w_q))
+            x = self.layer_quantizers["features"](torch.matmul(x_q, w_q))
 
         if self.cached and self.cached_result is not None:
             if edge_index.size(1) != self.cached_num_edges:
@@ -318,7 +318,7 @@ class GCNConvMultiQuant(MessagePassingMultiQuant):
                 )
             else:
                 norm = edge_weight
-            norm = self.layer_quantizers["norm_low"](norm)
+            norm = self.layer_quantizers["weights"](norm)
             self.cached_result = edge_index, norm
 
         edge_index, norm = self.cached_result
@@ -405,13 +405,13 @@ class GATConvMultiQuant(MessagePassingMultiQuant):
         # quantizing input
         if self.training:
             x_q = torch.empty_like(x)
-            x_q[mask] = self.layer_quantizers["inputs_high"](x[mask])
-            x_q[~mask] = self.layer_quantizers["inputs_low"](x[~mask])
+            x_q[mask] = self.layer_quantizers["inputs"](x[mask])
+            x_q[~mask] = self.layer_quantizers["inputs"](x[~mask])
         else:
-            x_q = self.layer_quantizers["inputs_low"](x)
+            x_q = self.layer_quantizers["inputs"](x)
 
         # quantizing layer weights
-        w_q = self.layer_quantizers["weights_low"](self.weight)
+        w_q = self.layer_quantizers["weights"](self.weight)
 
         if size is None and torch.is_tensor(x_q):
             edge_index, _ = remove_self_loops(edge_index)
@@ -421,10 +421,10 @@ class GATConvMultiQuant(MessagePassingMultiQuant):
             if self.training:
                 x = torch.empty((x_q.shape[0], w_q.shape[1])).to(x_q.device)
                 x_tmp = torch.matmul(x_q, w_q)
-                x[mask] = self.layer_quantizers["features_high"](x_tmp[mask])
-                x[~mask] = self.layer_quantizers["features_low"](x_tmp[~mask])
+                x[mask] = self.layer_quantizers["features"](x_tmp[mask])
+                x[~mask] = self.layer_quantizers["features"](x_tmp[~mask])
             else:
-                x = self.layer_quantizers["features_low"](torch.matmul(x_q, w_q))
+                x = self.layer_quantizers["features"](torch.matmul(x_q, w_q))
 
             x_q = x
         else:
@@ -436,14 +436,14 @@ class GATConvMultiQuant(MessagePassingMultiQuant):
                 x0_q = None
                 if x[0] is not None:
                     x0_q = torch.empty_like(x[0])
-                    x0_q[mask] = self.layer_quantizers["features_high"](x[0][mask])
-                    x0_q[~mask] = self.layer_quantizers["features_low"](x[0][~mask])
+                    x0_q[mask] = self.layer_quantizers["features"](x[0][mask])
+                    x0_q[~mask] = self.layer_quantizers["features"](x[0][~mask])
 
                 x1_q = None
                 if x[1] is not None:
                     x1_q = torch.empty_like(x[1])
-                    x1_q[mask] = self.layer_quantizers["features_high"](x[1][mask])
-                    x1_q[~mask] = self.layer_quantizers["features_low"](x[1][~mask])
+                    x1_q[mask] = self.layer_quantizers["features"](x[1][mask])
+                    x1_q[~mask] = self.layer_quantizers["features"](x[1][~mask])
 
                 x_q = (x0_q, x1_q)
 
@@ -451,10 +451,10 @@ class GATConvMultiQuant(MessagePassingMultiQuant):
                 x_q = (
                     None
                     if x[0] is None
-                    else self.layer_quantizers["features_low"](x[0]),
+                    else self.layer_quantizers["features"](x[0]),
                     None
                     if x[1] is None
-                    else self.layer_quantizers["features_low"](x[1]),
+                    else self.layer_quantizers["features"](x[1]),
                 )
 
         edge_mask = torch.index_select(mask, 0, edge_index[0])
@@ -474,13 +474,13 @@ class GATConvMultiQuant(MessagePassingMultiQuant):
 
         if self.training:
             alpha_tmp = torch.empty_like(alpha)
-            alpha_tmp[edge_mask] = self.layer_quantizers["alpha_high"](alpha[edge_mask])
-            alpha_tmp[~edge_mask] = self.layer_quantizers["alpha_low"](
+            alpha_tmp[edge_mask] = self.layer_quantizers["alpha"](alpha[edge_mask])
+            alpha_tmp[~edge_mask] = self.layer_quantizers["alpha"](
                 alpha[~edge_mask]
             )
             alpha = alpha_tmp
         else:
-            alpha = self.layer_quantizers["alpha_low"](alpha)
+            alpha = self.layer_quantizers["alpha"](alpha)
 
         alpha = F.leaky_relu(alpha, self.negative_slope)
         alpha = softmax(alpha, edge_index_i, size_i)
