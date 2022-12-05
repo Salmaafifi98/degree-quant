@@ -132,31 +132,24 @@ class GCN(torch.nn.Module):
         # NOTE: see comment in multi_quant.py on the use of 
         # "mask-aware" MLPs.
         self.conv1 = gcn_layer(
-            ResettableSequential(
-                Linear(dataset.num_features, hidden),
-                ReLU(),
-                LinearQuantized(hidden, hidden, layer_quantizers=lq),
-                ReLU(),
-                BN(hidden),
-            ),
-            train_eps=True,
-            mp_quantizers=mq,
+            in_channels = 500,
+            out_channels = 16,
         )
         self.convs = torch.nn.ModuleList()
-        for i in range(num_layers - 1):
-            self.convs.append(
-                gcn_layer(
-                    ResettableSequential(
-                        LinearQuantized(hidden, hidden, layer_quantizers=lq_signed),
-                        ReLU(),
-                        LinearQuantized(hidden, hidden, layer_quantizers=lq),
-                        ReLU(),
-                        BN(hidden),
-                    ),
-                    train_eps=True,
-                    mp_quantizers=mq,
-                )
-            )
+        # for i in range(num_layers - 1):
+        #     self.convs.append(
+        #         gcn_layer(
+        #             ResettableSequential(
+        #                 LinearQuantized(hidden, hidden, layer_quantizers=lq_signed),
+        #                 ReLU(),
+        #                 LinearQuantized(hidden, hidden, layer_quantizers=lq),
+        #                 ReLU(),
+        #                 BN(hidden),
+        #             ),
+        #             train_eps=True,
+        #             mp_quantizers=mq,
+        #         )
+        #     )
 
         self.lin1 = LinearQuantized(hidden, hidden, layer_quantizers=lq_signed)
         self.lin2 = LinearQuantized(hidden, dataset.num_classes, layer_quantizers=lq)
