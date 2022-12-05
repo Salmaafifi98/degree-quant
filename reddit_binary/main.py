@@ -2,7 +2,7 @@ import argparse
 
 from degree.reddit_binary.dataset import get_dataset
 from degree.reddit_binary.train_eval import cross_validation_with_val_set
-from degree.reddit_binary.gin import GIN
+from degree.reddit_binary.gcn import GCN
 import degree.reddit_binary.utils as utils
 
 # This code is substantially derived from PyTorch Geometric's repo
@@ -106,7 +106,7 @@ print(args)
 # below is just the default from PyG
 dataset = get_dataset(args.path, dataset_name, sparse=True, DQ=DQ)
 
-model = GIN(
+model = GCN(
     dataset,
     num_layers=args.num_layers,
     hidden=args.hidden,
@@ -121,7 +121,7 @@ print(f"model has {count_parameters(model)} parameters")
 
 # output dir and tensorboard writer
 dir, writer = utils.set_outputdir_and_writer(
-    "GIN",
+    "GCN",
     args.outdir,
     args.num_layers,
     args.hidden,
